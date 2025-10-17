@@ -198,7 +198,7 @@ sudo ./aws/install
 aws --version
 
 # configure aws
-aws -configure
+aws configure
 ```
 
 ---
