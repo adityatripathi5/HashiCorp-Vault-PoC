@@ -79,22 +79,31 @@ sudo systemctl enable --now mysql
 ### Step 2.2 — Create Demo Database
 
 ```sql
+-- Connect to MySQL
 sudo mysql
 
+-- Create database
 CREATE DATABASE eta_demo;
+
+-- Use the database
 USE eta_demo;
 
+-- Create ETA table
 CREATE TABLE eta_table (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  vehicle_id VARCHAR(50),
-  route_name VARCHAR(100),
-  estimated_arrival DATETIME,
-  last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    vehicle_id VARCHAR(50) NOT NULL,
+    route_name VARCHAR(100) NOT NULL,
+    estimated_arrival DATETIME NOT NULL,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO eta_table (vehicle_id, route_name, estimated_arrival)
-VALUES ('BUS_001','Downtown Express','2024-01-15 08:30:00');
+-- Insert sample data
+INSERT INTO eta_table (vehicle_id, route_name, estimated_arrival) VALUES
+('BUS_001', 'Downtown Express', '2024-01-15 08:30:00'),
+('BUS_002', 'Airport Shuttle', '2024-01-15 09:15:00'),
+('TRAIN_101', 'Red Line', '2024-01-15 10:00:00');
 
+-- Create Vault user for management
 CREATE USER 'vault-admin'@'%' IDENTIFIED BY 'secure-password-123';
 GRANT ALL PRIVILEGES ON eta_demo.* TO 'vault-admin'@'%';
 FLUSH PRIVILEGES;
@@ -117,8 +126,11 @@ vault --version
 
 ### Step 3.2 — Vault Config (`/etc/vault.d/vault.hcl`)
 
+```bash
 sudo mkdir -p /etc/vault.d
 sudo mkdir -p /opt/vault/data
+```
+
 
 ```hcl
 sudo tee /etc/vault.d/vault.hcl <<EOF
@@ -134,8 +146,44 @@ listener "tcp" {
   tls_disable = 1
 }
 
-api_addr = "http://demo-alb-362976722.us-west-2.elb.amazonaws.com:8200"
+api_addr = "http://demo-alb-362976722.us-west-2.elb.amazonaws.com"
 EOF
+```
+```
+# Set permissions
+sudo chown -R vault:vault /etc/vault.d /opt/vault
+```
+```
+# Create systemd service
+sudo tee /etc/systemd/system/vault.service <<EOF
+[Unit]
+Description=Vault
+Documentation=https://www.vaultproject.io/docs/
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecReload=/bin/kill -HUP $MAINPID
+LimitNOFILE=65536
+User=vault
+Group=vault
+RuntimeDirectory=vault
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+```
+# Start Vault service
+sudo systemctl daemon-reload
+sudo systemctl enable vault
+sudo systemctl start vault
+
+# Check status
+sudo systemctl status vault
 ```
 
 ### Step 3.3 — Initialize & Unseal
@@ -208,12 +256,21 @@ aws configure
 ```bash
 vault secrets enable database
 
+# Step 1: Get the private IP of the MySQL EC2 instance
+MYSQL_PRIVATE_IP=$(aws ec2 describe-instances \
+  --instance-ids <instance-id> \
+  --query 'Reservations[0].Instances[0].PrivateIpAddress' \
+  --output text)
+
+echo "MySQL Private IP: $MYSQL_PRIVATE_IP"
+
+# Step 2: Write the database config to Vault
 vault write database/config/eta-mysql \
-    plugin_name=mysql-database-plugin \
-    connection_url="{{username}}:{{password}}@tcp($(aws ec2 describe-instances --instance-ids <MYSQL_INSTANCE_ID> --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text):3306)/" \    
-    allowed_roles="mysql-dynamic-role" \
-    username="vault-admin" \
-    password="secure-password-123"
+  plugin_name="mysql-database-plugin" \
+  connection_url="{{username}}:{{password}}@tcp(${MYSQL_PRIVATE_IP}:3306)/" \
+  allowed_roles="mysql-dynamic-role" \
+  username="vault-admin" \
+  password="secure-password-123"
 
 vault write database/roles/mysql-dynamic-role \
     db_name=eta-mysql \
