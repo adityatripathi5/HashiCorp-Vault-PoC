@@ -117,7 +117,11 @@ vault --version
 
 ### Step 3.2 — Vault Config (`/etc/vault.d/vault.hcl`)
 
+sudo mkdir -p /etc/vault.d
+sudo mkdir -p /opt/vault/data
+
 ```hcl
+sudo tee /etc/vault.d/vault.hcl <<EOF
 ui = true
 disable_mlock = true
 
@@ -130,7 +134,8 @@ listener "tcp" {
   tls_disable = 1
 }
 
-api_addr = "http://demo-alb-362976722.us-west-2.elb.amazonaws.com"
+api_addr = "http://demo-alb-362976722.us-west-2.elb.amazonaws.com:8200"
+EOF
 ```
 
 ### Step 3.3 — Initialize & Unseal
