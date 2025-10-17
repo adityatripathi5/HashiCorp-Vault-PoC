@@ -108,6 +108,8 @@ CREATE USER 'vault-admin'@'%' IDENTIFIED BY 'secure-password-123';
 GRANT ALL PRIVILEGES ON eta_demo.* TO 'vault-admin'@'%';
 FLUSH PRIVILEGES;
 ```
+<img width="1099" height="453" alt="Screenshot 2025-10-17 at 2 16 18 PM" src="https://github.com/user-attachments/assets/54d8708b-14ee-4d1e-8273-8ec17d16df6e" />
+<img width="1115" height="540" alt="Screenshot 2025-10-17 at 2 16 49 PM" src="https://github.com/user-attachments/assets/d9805956-1562-4ad2-bbb4-54e84d1740b1" />
 
 ---
 
@@ -186,6 +188,9 @@ sudo systemctl start vault
 sudo systemctl status vault
 ```
 
+<img width="1602" height="448" alt="Screenshot 2025-10-17 at 2 20 56 PM" src="https://github.com/user-attachments/assets/5aabf92b-cfb8-47f1-b85e-fd7076644ae3" />
+
+
 ### Step 3.3 — Initialize & Unseal
 
 ```bash
@@ -206,9 +211,14 @@ vault login [ROOT_TOKEN]
 3. Create OAuth 2.0 Credentials → Web App
 4. Add Redirect URI:
 
+<img width="1405" height="937" alt="Screenshot 2025-10-17 at 2 22 44 PM" src="https://github.com/user-attachments/assets/c3401aae-fe67-4973-bc25-463b463cca60" />
+
    ```
    http://demo-alb-362976722.us-west-2.elb.amazonaws.com/ui/vault/auth/oidc/oidc/callback
    ```
+   
+<img width="1710" height="1112" alt="Screenshot 2025-10-17 at 2 23 25 PM" src="https://github.com/user-attachments/assets/62166f16-57ca-4538-929d-8300aefe86ce" />
+   
 
 ### Step 4.2 — Vault OIDC Setup
 
@@ -228,6 +238,8 @@ vault write auth/oidc/role/demo-role \
     policies="mysql-access" \
     ttl=1h
 ```
+<img width="1030" height="309" alt="Screenshot 2025-10-17 at 2 25 21 PM" src="https://github.com/user-attachments/assets/8ca0128e-9f3a-4106-9f3a-ac247292d6fb" />
+
 
 ### Step 4.3 — Ensure AWS CLI setup
 
@@ -278,6 +290,8 @@ vault write database/roles/mysql-dynamic-role \
     default_ttl="1h" \
     max_ttl="24h"
 ```
+<img width="890" height="135" alt="Screenshot 2025-10-17 at 2 30 07 PM" src="https://github.com/user-attachments/assets/9d5c576a-3d2e-43ed-b1c9-8ec65415661f" />
+<img width="1444" height="416" alt="Screenshot 2025-10-17 at 2 30 41 PM" src="https://github.com/user-attachments/assets/bdeeedf4-0144-4944-b3d3-c9550adc98f2" />
 
 ---
 
@@ -317,11 +331,20 @@ mysql --version
 3. Navigate: **Secrets → database → creds → mysql-dynamic-role**
 4. Copy temporary credentials (valid for 1 hour)
 
+<img width="1686" height="933" alt="Screenshot 2025-10-17 at 2 34 18 PM" src="https://github.com/user-attachments/assets/204dfb8e-bfb5-40fd-be29-cd640181af7a" />
+<img width="1710" height="1112" alt="Screenshot 2025-10-17 at 12 53 09 PM" src="https://github.com/user-attachments/assets/d776accf-56aa-4cfd-83c4-0950ad8eedb4" />
+<img width="1710" height="1112" alt="Screenshot 2025-10-17 at 12 53 50 PM" src="https://github.com/user-attachments/assets/6e47e195-591b-4d34-9dec-ab3d6408e021" />
+<img width="1710" height="1112" alt="Screenshot 2025-10-17 at 12 54 15 PM" src="https://github.com/user-attachments/assets/ee2bec32-f475-46b0-8bcc-417cb8cb9596" />
+
+
 ### From CLI:
 
 ```bash
 vault read database/creds/mysql-dynamic-role
 ```
+
+<img width="1161" height="156" alt="Screenshot 2025-10-17 at 2 41 07 PM" src="https://github.com/user-attachments/assets/cf473179-348b-46fa-aff2-fd33a3bbebbd" />
+
 
 ---
 
@@ -331,6 +354,8 @@ vault read database/creds/mysql-dynamic-role
 sudo apt install mysql-client -y
 mysql -h <MYSQL_PRIVATE_IP> -u <DYNAMIC_USER> -p<DYNAMIC_PASSWORD> -D eta_demo
 ```
+
+<img width="1710" height="1112" alt="Screenshot 2025-10-17 at 2 37 15 PM" src="https://github.com/user-attachments/assets/4897bc15-2422-47bf-b447-74e195b925ba" />
 
 Run:
 
