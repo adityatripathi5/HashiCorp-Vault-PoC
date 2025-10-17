@@ -111,6 +111,19 @@ FLUSH PRIVILEGES;
 <img width="1099" height="453" alt="Screenshot 2025-10-17 at 2 16 18 PM" src="https://github.com/user-attachments/assets/54d8708b-14ee-4d1e-8273-8ec17d16df6e" />
 <img width="1115" height="540" alt="Screenshot 2025-10-17 at 2 16 49 PM" src="https://github.com/user-attachments/assets/d9805956-1562-4ad2-bbb4-54e84d1740b1" />
 
+### Step 2.3 — Update config /etc/mysql/mysql.conf.d/mysqld.cnf
+
+Check MySQL config /etc/mysql/mysql.conf.d/mysqld.cnf or similar for the line:
+
+```bash
+bind-address = 0.0.0.0
+```
+
+```bash
+sudo systemctl restart mysql
+sudo systemctl status mysql
+```
+
 ---
 
 ## Phase 3: Vault Installation & Configuration
