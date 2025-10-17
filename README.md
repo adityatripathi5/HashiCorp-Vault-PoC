@@ -79,6 +79,8 @@ sudo systemctl enable --now mysql
 ### Step 2.2 — Create Demo Database
 
 ```sql
+sudo mysql
+
 CREATE DATABASE eta_demo;
 USE eta_demo;
 
