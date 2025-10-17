@@ -296,4 +296,9 @@ After 1 hour, the credentials will expire automatically.
 ---
 
 
+## Contact Information
+
+| Name            | Email Address                                                                           |
+| --------------- | --------------------------------------------------------------------------------------- |
+| Aditya Tripathi | aditya.tripathi.snaatak@mygurukulam.co                                                |
 
